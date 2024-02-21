@@ -1,0 +1,205 @@
+version: '3.8'
+
+x-all: &all
+  LIBRARY_PATH: ${LIBRARY_PATH:-/home/nendo/nendo_library}
+  LIBRARY_PLUGIN: ${LIBRARY_PLUGIN:-nendo_plugin_library_postgres}
+  PLUGINS: '${PLUGINS-[]}'
+  ENVIRONMENT: ${ENVIRONMENT:-remote}
+  DEFAULT_SKIP_DUPLICATE: ${DEFAULT_SKIP_DUPLICATE-false}
+  DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME:-nendo-internal}
+  NUM_USER_CPU_WORKERS: ${NUM_USER_CPU_WORKERS-3}
+  NUM_GPU_WORKERS: ${NUM_GPU_WORKERS-1}
+  GOOGLE_STORAGE_CREDENTIALS: "${NUM_GPU_WORKERS-}"
+  SECRET: "${SECRET-}"
+  CLIENT_ID: "${CLIENT_ID-}"
+  CLIENT_SECRET: "${CLIENT_SECRET-}"
+  AUTH_DATABASE_CONNECTION: "${AUTH_DATABASE_CONNECTION:-postgresql+asyncpg://nendo:nendo@postgres:5432/auth}"
+  POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+  POSTGRES_USER: ${POSTGRES_USER:-nendo}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nendo}
+  POSTGRES_DB: ${POSTGRES_DB:-nendo}
+  REDIS_HOST: ${REDIS_HOST:-redis}
+  REDIS_PORT: ${REDIS_PORT-6379}
+  REDIS_DB: ${REDIS_DB-0}
+  REDIS_USER: ${REDIS_USER-}
+  REDIS_PASSWORD: ${REDIS_PASSWORD-}
+  CONTAINER_LIBRARY_PLUGIN: ${CONTAINER_LIBRARY_PLUGIN:-nendo_plugin_library_postgres}
+  CONTAINER_LIBRARY_PATH: ${CONTAINER_LIBRARY_PATH:-/home/nendo/nendo_library}
+  CONTAINER_HOST_BASE_PATH: ${HOST_CWD:?HOST_CWD must be set to contain the current path}
+  CONTAINER_HOST_APPS_PATH: ${HOST_CWD}/repo/nendo-server/nendo_server/apps
+  CONTAINER_POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+  CONTAINER_POSTGRES_USER: ${POSTGRES_USER:-nendo}
+  CONTAINER_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nendo}
+  CONTAINER_POSTGRES_DB: ${POSTGRES_DB:-nendo}
+x-dev: &dev
+  LOG_LEVEL: debug
+  CONTAINER_LOG_LEVEL: debug
+  # REDIRECT_URL: "${SERVER_URL}/callback"
+  USE_GPU: ${USE_GPU-true}
+  USER_STORAGE_SIZE: ${USER_STORAGE_SIZE--1}
+x-prod: &prod
+  LOG_LEVEL: warning
+  CONTAINER_LOG_LEVEL: warning
+  # REDIRECT_URL: "${SERVER_URL}/callback"
+  USE_GPU: ${USE_GPU-true}
+  EMAIL_FROM_ADDRESS: ${MAILGUN_FROM_ADDRESS:-postmaster@yourdomain.com}
+  MAILGUN_API_KEY: ${MAILGUN_API_KEY:-REPLACE_KEY}
+  EMAIL_VERIFY_URL_INTERNAL: "nendo-server/api/auth/verify"
+  EMAIL_VERIFY_URL_PUBLIC_UI: "${SERVER_URL:-http://localhost}/verified"
+  PASSWORD_RESET_URL_PUBLIC: "${SERVER_URL:-http://localhost}/setpassword"
+  USER_STORAGE_SIZE: ${USER_STORAGE_SIZE--1}
+
+services:
+  gateway:
+    image: nginx:latest
+    container_name: nendo-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      internal:
+        ipv4_address: 172.28.1.2
+    depends_on:
+      - postgres
+      - web-dev
+      - server-dev
+    profiles: ['dev']
+
+  web:
+    build:
+        context: ./repo/nendo-web
+        target: run-stage
+    image: nendo-web:latest
+    container_name: nendo-web
+    environment:
+      VITE_API_URL: ${SERVER_URL:-http://localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./conf/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ${SSL_CERTIFICATE_PATH:-./conf/nginx/certs/nendo.crt}:/etc/nginx/ssl/nendo.crt:ro
+      - ${SSL_KEY_PATH:-./conf/nginx/certs/nendo.key}:/etc/nginx/ssl/nendo.key:ro
+    networks:
+      internal:
+        ipv4_address: 172.28.1.3
+    profiles: ['prod']
+
+  web-http:
+    build:
+        context: ./repo/nendo-web
+        target: run-stage
+    image: nendo-web:latest
+    container_name: nendo-web
+    environment:
+      VITE_API_URL: ${SERVER_URL:-http://localhost}
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf/nginx/nginx.http-only.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      internal:
+        ipv4_address: 172.28.1.3
+    profiles: ['prod-http']
+
+  server:
+    build: 
+      context: ./repo/nendo-server
+      target: nendo-server-prod
+    image: nendo-server:latest
+    container_name: nendo-server
+    environment:
+      << : [*all, *prod]
+    volumes:
+      - ./library:/home/nendo/nendo_library
+      - /var/run/docker.sock:/var/run/docker.sock
+      - hf-models-cache:/home/nendo/.cache/
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      internal:
+        ipv4_address: 172.28.1.4
+    profiles: ['prod', 'prod-http']
+
+  web-dev:
+    build:
+        context: ./repo/nendo-web
+        target: dev-stage
+    image: nendo-web:latest
+    container_name: nendo-web
+    environment:
+      VITE_API_URL: ${SERVER_URL:-http://localhost}
+    ports:
+      - 5173:5173
+    volumes:
+      - ./repo/nendo-web/src:/app/src
+      - ./repo/nendo-web/public:/app/public
+    networks:
+      internal:
+        ipv4_address: 172.28.1.3
+    profiles: ['dev']
+
+  server-dev:
+    build: 
+      context: ./repo/nendo-server
+      target: nendo-server-dev
+    image: nendo-server:latest
+    container_name: nendo-server
+    ports:
+      - "8000:8000"
+    environment:
+      << : [*all, *dev]
+    volumes:
+      - ./repo/nendo-server/nendo_server:/home/nendo/nendo-server/nendo_server
+      - ./library:/home/nendo/nendo_library
+      - /var/run/docker.sock:/var/run/docker.sock
+      - hf-models-cache:/home/nendo/.cache/
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      internal:
+        ipv4_address: 172.28.1.4
+    profiles: ['dev']
+
+  postgres:
+    image: ankane/pgvector
+    container_name: nendo-postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: nendo
+      POSTGRES_PASSWORD: nendo
+      POSTGRES_DB: nendo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./conf/postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    networks:
+      internal:
+        ipv4_address: 172.28.1.5
+
+  redis:
+    image: redis:latest
+    hostname: redis
+    container_name: nendo-redis
+    # environment:
+    #   REDIS_PASSWORD: nendo
+    # volumes:
+    #   - redis-data:/data
+    networks:
+      internal:
+        ipv4_address: 172.28.1.6
+
+networks:
+  internal:
+    name: ${DOCKER_NETWORK_NAME:-nendo-internal}
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  postgres-data:
+  hf-models-cache:
+  redis-data:

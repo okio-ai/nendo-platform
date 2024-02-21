@@ -1,0 +1,6 @@
+repo/
+build/*/dependencies/
+build/*/*/dependencies/
+library/
+.idea
+conf/nginx/certs/*
