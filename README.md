@@ -26,7 +26,23 @@ Nendo is an open source platform for AI-driven audio management, intelligence, a
 
 To run Nendo Platform on Unix-based systems, make sure you have `docker` and `docker-compose` (`>=1.28.0`) installed. Make sure the user with which you intend to run Nendo Platform is a member of the `docker` group, otherwise the `make` commands will fail with `permission denied`.
 
-> **Note**: Nendo Platform needs a GPU with at least 24 GB of VRAM for all of its features to work properly. If your system does not have a GPU available, you can still run Nendo Platform in [CPU mode](#cpu-mode) but expect certain tools to fail.
+### GPU Compatibility
+
+Nendo Platform needs a GPU with at least 24 GB of VRAM for all of its features to work properly. The list of supported hardware includes, but is not limited to:
+
+- RTX 3090 (Ti)
+- RTX 4090 (Ti)
+- RTX 8000
+- RTX A5000
+- RTX A6000
+- Tesla V100
+- A10
+- A100
+- H100
+
+The default images for the GPU-enabled tools in Nendo use the **`nvcr.io/nvidia/pytorch:22.08-py3`** image which is based on **`CUDA 11.7.1`** and requires **`NVIDIA Driver release 515`**. Depending on your hardware setup, it might be necessary to build Nendo's tools with another nvidia container toolkit image as base. Refer to the [nvidia frameworks support matrix](https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html) to find the right base image and tag for your hardware and make sure to use a version that includes `pytorch`. Then, replace the image and tag at the top of `build/core/3.8-gpu/Dockerfile` with the one that fits your system and call `make build-tools-gpu`.
+
+> **Note**: If your system does not have a GPU available, you can still run Nendo Platform in [CPU mode](#cpu-mode) but expect certain tools to fail.
 
 ## Quickstart
 
@@ -237,3 +253,18 @@ make server-build
 ### I started Nendo but when I try to log in, I get the error `Error logging in: {}`
 
 Most likely, Nendo has not fully booted up yet. To check, run `make server-logs` and verify that you see the line `INFO Application startup complete.`. Then try to log in again. 
+
+### When I start Nendo, the server fails to build with `UID 0 is not unique`
+
+When you encounter the following error during startup of Nendo:
+
+```bash
+=> ERROR [server-dev nendo-server-base 6/16] RUN useradd nendo --create-home -u 0 -g 0 -m -s /bin/bash 0.3s
+0.318 useradd: UID 0 is not unique
+```
+
+Then you most likely tried to run the `make build` or `make run` as the `root` user or are using `sudo` to run it. This is not supported by Nendo. Please make sure you run any of the `make` commands as a non-root user and also make sure that the user you are running the commands with is in the `docker` group. To verify that, check the output of the `id` command and make sure you see `(docker)` there. Then proceed to run your `make` calls without `sudo`.
+
+### When I try to run a tool, I get a CUDA version mismatch error
+
+Make sure you are using the right version of the NVIDIA container toolkit images for your hardware. Refer to the [GPU requirements section](#gpu-compatibility) for more information.
