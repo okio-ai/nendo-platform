@@ -28,7 +28,19 @@ To run Nendo Platform on Unix-based systems, make sure you have `docker` and `do
 
 ### GPU Compatibility
 
-Nendo Platform needs a GPU with at least 24 GB of VRAM for all of its features to work properly. The list of supported hardware includes, but is not limited to:
+> **Note**: If your system does not have a GPU available, you can still run Nendo Platform in [CPU mode](#cpu-mode) but expect certain tools to fail.
+
+#### Minimum Requirements
+
+Nendo Platform needs a GPU with 8 GB of VRAM for the most basic AI features to work properly.
+Expect certain tools to be significantly slower or even to fail when running with the minimum requirements.
+
+Also note that audio files over 15 minutes in length might not be processable with the minimum requirements.
+
+#### Recommended Requirements
+
+Nendo Platform needs a GPU with at least 24 GB of VRAM for its whole feature set to work properly. 
+The list of supported hardware includes, but is not limited to:
 
 - RTX 3090 (Ti)
 - RTX 4090 (Ti)
@@ -42,7 +54,6 @@ Nendo Platform needs a GPU with at least 24 GB of VRAM for all of its features t
 
 The default images for the GPU-enabled tools in Nendo use the **`nvcr.io/nvidia/pytorch:22.08-py3`** image which is based on **`CUDA 11.7.1`** and requires **`NVIDIA Driver release 515`**. Depending on your hardware setup, it might be necessary to build Nendo's tools with another nvidia container toolkit image as base. Refer to the [nvidia frameworks support matrix](https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html) to find the right base image and tag for your hardware and make sure to use a version that includes `pytorch`. Then, replace the image and tag at the top of `build/core/3.8-gpu/Dockerfile` with the one that fits your system and call `make build-tools-gpu`.
 
-> **Note**: If your system does not have a GPU available, you can still run Nendo Platform in [CPU mode](#cpu-mode) but expect certain tools to fail.
 
 ## Quickstart
 
