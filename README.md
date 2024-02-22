@@ -36,6 +36,12 @@ Everything can be controlled using `make`. To get an overview of the available c
 make
 ```
 
+Before you start Nendo for the first time, you have to build the images:
+
+```bash
+make setup
+```
+
 Then you can start Nendo Platform by simply calling:
 
 ```bash
@@ -54,24 +60,22 @@ To change the password of the default user, refer to the [server deployment sect
 
 ### CPU mode
 
-If your machine does not have a GPU, you can run Nendo Platform in CPU-only mode:
+If your machine does not have a GPU, you can run Nendo Platform in CPU-only mode.
+
+First, build the CPU-mode images:
 
 ```bash
 make setup-cpu
+```
+
+Then start Nendo by calling:
+
+```bash
 make run-cpu
 ```
 
 > **Note**: Many of the AI capabilities of a Nendo Platform require a GPU to run properly or at all. Expect most tools to fail in CPU-only mode.
 
-### Development mode
-
-To run Nendo Platform in development mode, call:
-
-```bash
-make run-dev
-```
-
-> **Warning**: Development mode is unsecure and should only be used in local environments.
 
 ## Server deployment
 
@@ -111,31 +115,39 @@ make set-password NEW_PASSWORD=mynewpassword
 
 ## Development
 
-To start Nendo Platform in development mode, run:
+Nendo Platform comes with a _development mode_ in which the Nendo Web frontend and the Nendo API Server are started with debugging output and hot-reloading enabled.
+
+First, build the development-mode images:
+
+```bash
+make setup-dev
+```
+
+Then start Nendo by calling:
 
 ```bash
 make run-dev
 ```
 
-This will run Nendo Platform in development mode with more verbose logging and hot-reloading of components upon code changes.
-
 > **Note**: The hot-reloading only works with changes that are done to the application code, i.e. code that resides in the `nendo_server/` subdirectory of `nendo-server` and in the `src/` subdirectory of `nendo-web` accordingly. All changes to files outside those directories require [rebuilding of the images, as explained below](#building).
 
 Now you can start developing your app by changing files in the `repo/nendo-server` and `repo/nendo-web` directories.
+
+> **Warning**: Development mode is unsecure and should only be used in local environments.
 
 ### Building
 
 If you end up changing something about `nendo-server` or `nendo-web` that requires (re-)building of the images, you should use the respective `make` commands for that. To build both images (server _and_ web):
 
 ```bash
-make build
+make build-dev
 ```
 
 To only build `nendo-server`:
 
 ```bash
 make server-build
-# OR
+# OR, for development mode
 make server-build-dev
 ```
 
@@ -143,7 +155,7 @@ To only build `nendo-web`:
 
 ```bash
 make web-build
-# OR
+# OR, for development mode
 make web-build-dev
 ```
 
@@ -155,11 +167,11 @@ To get the latest version of all involved repos and packages, use:
 make update-dependencies
 ```
 
-Then, in many cases, you need to rebuild the stack:
+Then you need to rebuild the stack:
 
 ```bash
 make build
-# OR
+# OR, for development mode
 make build-dev
 ```
 
@@ -221,3 +233,7 @@ docker image rm nendo-server
 docker builder prune
 make server-build
 ```
+
+### I started Nendo but when I try to log in, I get the error `Error logging in: {}`
+
+Most likely, Nendo has not fully booted up yet. To check, run `make server-logs` and verify that you see the line `INFO Application startup complete.`. Then try to log in again. 

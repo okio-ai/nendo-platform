@@ -1,4 +1,4 @@
-.PHONY: init setup setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu update-dependencies set-password invite-codes
+.PHONY: init setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu update-dependencies set-password invite-codes
 
 all: help
 
@@ -11,9 +11,11 @@ gid := $(shell id -g)
 init:
 	cd ./scripts/ && ./init_local_dev.sh && cd ..
 
-setup: init build-dev build-tools-gpu
+setup: init update-dependencies build build-tools-gpu
 
-setup-cpu: init build-dev build-tools-cpu
+setup-dev: init update-dependencies build-dev build-tools-gpu
+
+setup-cpu: init update-dependencies build-dev build-tools-cpu
 
 flush:
 	@/bin/bash -c 'read -p "Are you sure you want to delete all rows from the specified tables? [y/N] " confirm; \
@@ -126,7 +128,8 @@ help:
 	@echo '==================='
 	@echo '-- DOCUMENTATION --'
 	@echo 'init                   - initialize the environment (clone repos)'
-	@echo 'setup                  - prepare the development environment'
+	@echo 'setup                  - prepare the environment'
+	@echo 'setup-dev              - prepare the development environment'
 	@echo 'setup-cpu              - prepare the development environment (CPU-only)'
 	@echo 'flush                  - flush the database and delete all files in the default user library'
 	@echo 'build                  - build all images'

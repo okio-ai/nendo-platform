@@ -27,7 +27,7 @@ RUN pip install \
     redis \
     rq \
     nendo>=0.2.0 \
-    nendo-plugin-library-postgres
+    nendo-plugin-library-postgres>=0.1.1
 
 USER root
 RUN mkdir /home/nendo/nendo_library
