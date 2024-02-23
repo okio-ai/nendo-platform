@@ -1,4 +1,4 @@
-.PHONY: init setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu update-dependencies set-password invite-codes
+.PHONY: init setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu stop update-dependencies set-password invite-codes
 
 all: help
 
@@ -71,28 +71,29 @@ web-shell:
 
 run-dev:
 	@echo Running with HOST_CWD=$(shell pwd), USE_GPU=$(USE_GPU)
+	$(MAKE) stop
 	@if [ -z "$$(docker images -q nendo-server)" ] || [ -z "$$(docker images -q nendo-web)" ]; then \
         echo "One or both images not found. Running setup..."; \
         $(MAKE) setup; \
     else \
         echo "Both images found. Running application..."; \
     fi
-	@HOST_CWD=$(shell pwd) docker compose --profile dev down
 	@HOST_CWD=$(shell pwd) docker compose --profile dev up
 
 run-cpu:
 	@echo Running with HOST_CWD=$(shell pwd), USE_GPU=false
+	$(MAKE) stop
 	@if [ -z "$$(docker images -q nendo-server)" ] || [ -z "$$(docker images -q nendo-web)" ]; then \
         echo "One or both images not found. Running setup..."; \
         $(MAKE) setup-cpu; \
     else \
         echo "Both images found. Running application..."; \
     fi
-	@HOST_CWD=$(shell pwd) USE_GPU=false docker compose --profile dev down
 	@HOST_CWD=$(shell pwd) USE_GPU=false docker compose --profile dev up
 
 run:
 	@echo Running with HOST_CWD=$(shell pwd)
+	$(MAKE) stop
 	@if [ -z "$$(docker images -q nendo-server)" ] || [ -z "$$(docker images -q nendo-web)" ]; then \
         echo "One or both images not found. Running setup..."; \
         $(MAKE) setup; \
@@ -106,8 +107,12 @@ run:
 		echo "Running with SSL"; \
 		PROFILE=prod; \
 	fi; \
-	HOST_CWD=$(shell pwd) docker compose --profile $$PROFILE down; \
 	HOST_CWD=$(shell pwd) docker compose --profile $$PROFILE up -d
+
+stop:
+	@HOST_CWD=$(shell pwd) docker compose --profile dev down; \
+	HOST_CWD=$(shell pwd) docker compose --profile prod-http down; \
+	HOST_CWD=$(shell pwd) docker compose --profile prod down; \
 
 update-dependencies:
 	git pull
@@ -147,6 +152,7 @@ help:
 	@echo 'run                    - run Nendo Platform'
 	@echo 'run-dev                - run Nendo Platform in development mode with hot-reloading'
 	@echo 'run-cpu                - run Nendo Platform in development mode with hot-reloading (CPU mode)'
+	@echo 'stop                   - stop any running instances'
 	@echo 'set-password           - set a new password for the default nendo user'
 	@echo 'update-dependencies    - update development dependencies'
 	@echo '==================='
