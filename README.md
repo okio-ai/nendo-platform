@@ -22,6 +22,9 @@
 
 Nendo is an open source platform for AI-driven audio management, intelligence, and generation. It is a feature-rich web application stack to develop and run tools that are based on [Nendo Core](https://github.com/okio-ai/nendo) and it's [plugin ecosystem](https://okio.ai/docs/plugins/).
 
+
+**[Requirements](#requirements)** - **[Quickstart](#quickstart)** - **[Server Deployment](#server-deployment)** - **[Development](#development)** - **[Troubleshooting](#troubleshooting)**
+
 ## Requirements
 
 To run Nendo Platform on Unix-based systems, make sure you have `docker` and `docker-compose` (`>=1.28.0`) installed. Make sure the user with which you intend to run Nendo Platform is a member of the `docker` group, otherwise the `make` commands will fail with `permission denied`.
@@ -40,17 +43,7 @@ Also note that audio files over 15 minutes in length might not be processable wi
 #### Recommended Requirements
 
 Nendo Platform needs a GPU with at least 24 GB of VRAM for its whole feature set to work properly. 
-The list of supported hardware includes, but is not limited to:
-
-- RTX 3090 (Ti)
-- RTX 4090 (Ti)
-- RTX 8000
-- RTX A5000
-- RTX A6000
-- Tesla V100
-- A10
-- A100
-- H100
+The list of supported hardware includes, but is not limited to: RTX 3090 (Ti), RTX 4090 (Ti), RTX 8000, RTX A5000, RTX A6000, Tesla V100, A10, A100, H100.
 
 The default images for the GPU-enabled tools in Nendo use the **`nvcr.io/nvidia/pytorch:22.08-py3`** image which is based on **`CUDA 11.7.1`** and requires **`NVIDIA Driver release 515`**. Depending on your hardware setup, it might be necessary to build Nendo's tools with another nvidia container toolkit image as base. Refer to the [nvidia frameworks support matrix](https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html) to find the right base image and tag for your hardware and make sure to use a version that includes `pytorch`. Then, replace the image and tag at the top of `build/core/3.8-gpu/Dockerfile` with the one that fits your system and call `make build-tools-gpu`.
 
