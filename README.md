@@ -184,7 +184,7 @@ make web-build-dev
 To get the latest version of all involved repos and packages, use:
 
 ```bash
-make update-dependencies
+make update
 ```
 
 Then you need to rebuild the stack:

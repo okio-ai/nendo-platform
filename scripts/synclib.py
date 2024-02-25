@@ -21,15 +21,6 @@ def backup(library_path, gcs_storage_path):
         print(f"Error syncing to GCS: {e}")
 
 def restore(library_path, gcs_storage_path):
-    # Sync from GCS
-    sync_command = f"gsutil -m rsync -d -r {gcs_storage_path} {library_path}"
-    try:
-        print(f"Executing: {sync_command}")
-        subprocess.run(sync_command, shell=True, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error syncing from GCS: {e}")
-        return
-
     # Copy the SQL file into the Docker container
     copy_command = f"docker cp {library_path}/nendo.sql nendo-postgres:/root/nendo.sql"
     try:
@@ -48,13 +39,14 @@ def restore(library_path, gcs_storage_path):
         print(f"Error importing SQL file into database: {e}")
         return
 
-    # Delete the SQL file from the local library path
-    delete_command = f"rm {library_path}/nendo.sql"
+    # Sync from GCS
+    sync_command = f"gsutil -m rsync -d -r {gcs_storage_path} {library_path}"
     try:
-        print(f"Executing: {delete_command}")
-        subprocess.run(delete_command, shell=True, check=True)
+        print(f"Executing: {sync_command}")
+        subprocess.run(sync_command, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Error deleting SQL file from local path: {e}")
+        print(f"Error syncing from GCS: {e}")
+        return
 
 def main():
     # Parse command-line arguments

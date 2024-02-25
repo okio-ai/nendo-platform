@@ -1,4 +1,4 @@
-.PHONY: init setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu stop update-dependencies set-password invite-codes
+.PHONY: init setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu stop update set-password invite-codes
 
 all: help
 
@@ -11,11 +11,11 @@ gid := $(shell id -g)
 init:
 	cd ./scripts/ && ./init_local_dev.sh && cd ..
 
-setup: init update-dependencies build build-tools-gpu
+setup: init update build build-tools-gpu
 
-setup-dev: init update-dependencies build-dev build-tools-gpu
+setup-dev: init update build-dev build-tools-gpu
 
-setup-cpu: init update-dependencies build-dev build-tools-cpu
+setup-cpu: init update build-dev build-tools-cpu
 
 flush:
 	@/bin/bash -c 'read -p "Are you sure you want to delete all rows from the specified tables? [y/N] " confirm; \
@@ -112,9 +112,9 @@ run:
 stop:
 	@HOST_CWD=$(shell pwd) docker compose --profile dev down; \
 	HOST_CWD=$(shell pwd) docker compose --profile prod-http down; \
-	HOST_CWD=$(shell pwd) docker compose --profile prod down; \
+	HOST_CWD=$(shell pwd) docker compose --profile prod down
 
-update-dependencies:
+update:
 	git pull
 	cd repo/nendo-server && git pull
 	cd repo/nendo-web && git pull
@@ -154,5 +154,6 @@ help:
 	@echo 'run-cpu                - run Nendo Platform in development mode with hot-reloading (CPU mode)'
 	@echo 'stop                   - stop any running instances'
 	@echo 'set-password           - set a new password for the default nendo user'
-	@echo 'update-dependencies    - update development dependencies'
+	@echo 'update    - update development dependencies'
+	@echo 'invite-codes           - Create 100 invite codes in the database and print them to the console'
 	@echo '==================='
