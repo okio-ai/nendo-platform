@@ -1,4 +1,4 @@
-# ------ polymath bundle ----------
+# ------ webimport tool ----------
 FROM nendo/core:3.8
 
 USER root
