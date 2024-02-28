@@ -1,4 +1,4 @@
-#TheBloke/OpenHermes-2.5-Mistral-7B-GGUF ------ core ----------
+# ------ core ----------
 FROM nvcr.io/nvidia/pytorch:22.08-py3
 
 ENV TZ=Europe/Berlin
