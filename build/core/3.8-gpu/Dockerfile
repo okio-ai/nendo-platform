@@ -1,4 +1,4 @@
-# ------ core ----------
+#TheBloke/OpenHermes-2.5-Mistral-7B-GGUF ------ core ----------
 FROM nvcr.io/nvidia/pytorch:22.08-py3
 
 ENV TZ=Europe/Berlin
@@ -29,7 +29,7 @@ WORKDIR /home/nendo
 RUN pip install \
     redis \
     rq \
-    nendo>=0.2.0 \
+    nendo>=0.2.1 \
     nendo-plugin-library-postgres>=0.1.1
 
 USER root
