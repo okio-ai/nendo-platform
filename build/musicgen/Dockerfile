@@ -12,6 +12,9 @@ RUN apt-get update \
 USER nendo
 
 RUN pip install git+https://github.com/facebookresearch/audiocraft
+RUN pip install git+https://github.com/CPJKU/madmom.git@0551aa8
 # make sure we have the correct cuda version
 RUN pip install --force-reinstall torch==2.1 torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu118
-RUN pip install nendo-plugin-musicgen
+RUN pip install \
+    nendo-plugin-musicgen \
+    nendo-plugin-loopify

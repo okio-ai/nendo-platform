@@ -23,6 +23,7 @@ WORKDIR /home/nendo
 RUN pip install \
     redis \
     rq \
+    wrapt-timeout-decorator>=1.5.1 \
     nendo>=0.2.0 \
     nendo-plugin-library-postgres>=0.1.1
 
