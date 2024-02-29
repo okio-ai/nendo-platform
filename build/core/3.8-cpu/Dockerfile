@@ -25,7 +25,9 @@ RUN pip install \
     rq \
     wrapt-timeout-decorator>=1.5.1 \
     nendo>=0.2.1 \
-    nendo-plugin-library-postgres>=0.1.1
+    nendo-plugin-library-postgres>=0.1.1 \
+    tensorflow
+
 
 USER root
 RUN mkdir /home/nendo/nendo_library
