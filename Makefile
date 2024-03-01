@@ -18,6 +18,7 @@ setup-dev: init update build-dev build-tools-gpu
 setup-cpu: init update build-dev build-tools-cpu
 
 flush:
+	@docker ps | grep -q nendo-postgres || (echo "No running postgres detected. Please start Nendo before running this command." && exit 1)
 	@/bin/bash -c 'read -p "Are you sure you want to delete all rows from the specified tables? [y/N] " confirm; \
 	if [[ $$confirm == [yY] ]]; then \
 		docker exec -i nendo-postgres psql -U nendo -d nendo -c "BEGIN; DELETE FROM embeddings; DELETE FROM collection_collection_relationships; DELETE FROM track_track_relationships; DELETE FROM track_collection_relationships; DELETE FROM plugin_data; DELETE FROM scenes; DELETE FROM collections; DELETE FROM tracks; COMMIT;"; \
