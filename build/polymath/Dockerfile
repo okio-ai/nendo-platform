@@ -11,7 +11,7 @@ RUN apt-get update \
 
 USER nendo
 
-RUN pip install git+https://github.com/CPJKU/madmom.git@0551aa8 matplotlib
+RUN pip install git+https://github.com/CPJKU/madmom.git@0551aa8
 
 # install tensorflow version required for essentia-tensorflow
 # RUN pip uninstall -y tensorflow

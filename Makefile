@@ -48,6 +48,7 @@ build-tools-cpu:
 	cd build/voiceanalysis/cpu && docker build -t nendo/voiceanalysis .
 	cd build/polymath && docker build -t nendo/polymath .
 	cd build/quantize && docker build -t nendo/quantize .
+	cd build/webimport && docker build -t nendo/webimport .
 
 build-tools-gpu:
 	cd build/core/3.8-gpu && docker build --no-cache --build-arg UID=$(uid) --build-arg GID=$(gid) -t nendo/core:3.8 .
@@ -57,6 +58,7 @@ build-tools-gpu:
 	cd build/musicgen && docker build -t nendo/musicgen .
 	cd build/polymath && docker build -t nendo/polymath .
 	cd build/quantize && docker build -t nendo/quantize .
+	cd build/webimport && docker build -t nendo/webimport .
 
 server-logs:
 	docker logs nendo-server

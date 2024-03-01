@@ -9,8 +9,6 @@ RUN apt-get update \
     libportaudio2 libportaudiocpp0 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./dependencies ./dependencies
-
 USER nendo
 
-RUN pip install ./dependencies/nendo_plugin_import_core
+RUN pip install nendo_plugin_import_core
