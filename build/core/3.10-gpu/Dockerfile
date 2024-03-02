@@ -26,7 +26,7 @@ WORKDIR /home/nendo
 RUN pip install \
     redis \
     rq \
-    nendo>=0.2.1 \
+    nendo>=0.2.2 \
     nendo-plugin-library-postgres>=0.1.1
 
 USER root
