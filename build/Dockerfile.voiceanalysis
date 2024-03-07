@@ -1,0 +1,38 @@
+# ------ voiceanalysis tool ----------
+FROM nendo/core:3.8 as prod
+
+RUN pip install einops nendo-plugin-embed-clap nendo-plugin-textgen nendo-plugin-transcribe-whisper
+# install flash-attn for speedup on CUDA GPUs
+RUN pip install flash-attn --no-build-isolation
+# mistral requirements
+RUN pip install transformers==4.37.1 accelerate tiktoken scipy transformers_stream_generator==0.0.4 peft deepspeed
+# install auto-gptq for quantized mistral
+#RUN pip install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu122
+RUN pip install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu117
+
+FROM nendo/core:3.8 as dev-cpu
+
+COPY dependencies/nendo_plugin_textgen /home/nendo/nendo_plugin_textgen
+COPY dependencies/nendo_plugin_transcribe_whisper /home/nendo/nendo_plugin_transcribe_whisper
+COPY dependencies/nendo_plugin_embed_clap /home/nendo/nendo_plugin_embed_clap
+RUN pip install /home/nendo/nendo_plugin_textgen
+RUN pip install /home/nendo/nendo_plugin_transcribe_whisper
+RUN pip install /home/nendo/nendo_plugin_embed_clap
+# QWen requirements
+RUN pip install transformers==4.37.1 accelerate tiktoken einops scipy transformers_stream_generator peft deepspeed
+
+FROM nendo/core:3.8 as dev-gpu
+
+# install flash-attn for speedup on CUDA GPUs
+RUN pip install flash-attn --no-build-isolation
+COPY dependencies/nendo_plugin_textgen /home/nendo/nendo_plugin_textgen
+COPY dependencies/nendo_plugin_transcribe_whisper /home/nendo/nendo_plugin_transcribe_whisper
+COPY dependencies/nendo_plugin_embed_clap /home/nendo/nendo_plugin_embed_clap
+RUN pip install /home/nendo/nendo_plugin_textgen
+RUN pip install /home/nendo/nendo_plugin_transcribe_whisper
+RUN pip install /home/nendo/nendo_plugin_embed_clap
+# mistral requirements
+RUN pip install transformers==4.37.1 accelerate tiktoken scipy transformers_stream_generator==0.0.4 peft deepspeed
+# install auto-gptq for quantized mistral
+#RUN pip install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu122
+RUN pip install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu117

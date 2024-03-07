@@ -1,0 +1,55 @@
+# ------ polymath tool ----------
+FROM nendo/core:3.8 as base
+
+USER root
+
+RUN apt-get update && \
+    apt-get -y install rubberband-cli \
+    && rm -rf /var/lib/apt/lists/*
+
+USER nendo
+
+RUN pip install git+https://github.com/CPJKU/madmom.git@0551aa8
+
+FROM base as prod
+
+RUN pip install nendo-plugin-quantize-core nendo-plugin-classify-core nendo-plugin-stemify-demucs nendo-plugin-loopify nendo-plugin-embed-clap
+
+# Run once to ensure demucs works and trigger the default model download
+RUN python3 -m demucs -d cpu ./test.mp3 
+RUN rm -r separated
+
+# fix for soundfile bug and numba dependency problem
+RUN pip uninstall -y soundfile
+RUN pip install soundfile
+RUN pip install soundfile==0.12.1
+RUN pip install numpy==1.22.4
+# fix for the essentia vs. essentia-tensorflow conflict
+RUN pip uninstall -y essentia essentia-tensorflow
+RUN pip install essentia-tensorflow
+
+FROM base as dev
+
+COPY dependencies/nendo_plugin_classify_core /home/nendo/nendo_plugin_classify_core
+COPY dependencies/nendo_plugin_quantize_core /home/nendo/nendo_plugin_quantize_core
+COPY dependencies/nendo_plugin_stemify_demucs /home/nendo/nendo_plugin_stemify_demucs
+COPY dependencies/nendo_plugin_loopify /home/nendo/nendo_plugin_loopify
+COPY dependencies/nendo_plugin_embed_clap /home/nendo/nendo_plugin_embed_clap
+RUN pip install /home/nendo/nendo_plugin_classify_core
+RUN pip install /home/nendo/nendo_plugin_quantize_core
+RUN pip install /home/nendo/nendo_plugin_stemify_demucs
+RUN pip install /home/nendo/nendo_plugin_loopify
+RUN pip install /home/nendo/nendo_plugin_embed_clap
+
+# Run once to ensure demucs works and trigger the default model download
+RUN python3 -m demucs -d cpu ./test.mp3 
+RUN rm -r separated
+
+# fix for soundfile bug and numba dependency problem
+RUN pip uninstall -y soundfile
+RUN pip install soundfile
+RUN pip install soundfile==0.12.1
+RUN pip install numpy==1.22.4
+# fix for the essentia vs. essentia-tensorflow conflict
+RUN pip uninstall -y essentia essentia-tensorflow
+RUN pip install essentia-tensorflow

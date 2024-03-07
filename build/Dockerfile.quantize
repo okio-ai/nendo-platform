@@ -1,0 +1,25 @@
+# ------ quantize tool ----------
+FROM nendo/core:3.8 as base
+
+USER root
+
+RUN apt-get update && \
+    apt-get -y install rubberband-cli \
+    && rm -rf /var/lib/apt/lists/*
+
+USER nendo
+
+FROM base as prod
+
+RUN pip install nendo-plugin-quantize-core
+# fix for the soundfile bug
+RUN pip uninstall -y soundfile
+RUN pip install soundfile
+
+FROM base as dev
+
+COPY dependencies/nendo_plugin_quantize_core /home/nendo/nendo_plugin_quantize_core
+RUN pip install /home/nendo/nendo_plugin_quantize_core
+# fix for the soundfile bug
+RUN pip uninstall -y soundfile
+RUN pip install soundfile

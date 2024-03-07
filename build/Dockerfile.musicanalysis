@@ -1,0 +1,21 @@
+# ------ musicanalysis tool ----------
+FROM nendo/core:3.8 as base
+
+# install dependencies
+RUN git clone https://github.com/okio-ai/lp-music-caps.git
+RUN pip install -e ./lp-music-caps
+
+FROM base as prod
+
+# install nendo plugins
+RUN pip install nendo-plugin-classify-core nendo-plugin-embed-clap nendo-plugin-caption-lpmusiccaps
+
+FROM base as dev
+
+# install nendo plugins (development mode)
+COPY dependencies/nendo_plugin_classify_core /home/nendo/nendo_plugin_classify_core
+COPY dependencies/nendo_plugin_embed_clap /home/nendo/nendo_plugin_embed_clap
+COPY dependencies/nendo_plugin_caption_lpmusiccaps /home/nendo/nendo_plugin_caption_lpmusiccaps
+RUN pip install /home/nendo/nendo_plugin_classify_core
+RUN pip install /home/nendo/nendo_plugin_embed_clap
+RUN pip install /home/nendo/nendo_plugin_caption_lpmusiccaps
