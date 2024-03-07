@@ -272,3 +272,7 @@ Then you most likely tried to run the `make build` or `make run` as the `root` u
 ### When I try to run a tool, I get a CUDA version mismatch error
 
 Make sure you are using the right version of the NVIDIA container toolkit images for your hardware. Refer to the [GPU requirements section](#gpu-compatibility) for more information.
+
+### I have updated Nendo a few times and now Docker is using a lot of disk space
+
+Upon rebuilding the images with newer versions of the Nendo platform a few times, docker can quickly start taking up a lot of disk space. What helps in these situations is to call `docker system prune`.
