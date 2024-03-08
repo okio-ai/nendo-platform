@@ -33,18 +33,18 @@ build-dev: server-build-dev web-build-dev
 build: server-build web-build
 
 server-build-dev:
-	HOST_CWD=$(shell pwd) docker compose --profile dev build server-dev --build-arg UID=$(uid) --build-arg GID=$(gid) --build-arg DOCKER_GID=$(docker_gid)
+	HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile dev build server-dev --build-arg UID=$(uid) --build-arg GID=$(gid) --build-arg DOCKER_GID=$(docker_gid)
 
 server-build:
-	HOST_CWD=$(shell pwd) docker compose --profile prod build server --build-arg UID=$(uid) --build-arg GID=$(gid) --build-arg DOCKER_GID=$(docker_gid)
+	HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile prod build server --build-arg UID=$(uid) --build-arg GID=$(gid) --build-arg DOCKER_GID=$(docker_gid)
 
 web-build-dev:
 	@echo Building with SERVER_URL=$(SERVER_URL)
-	@HOST_CWD=$(shell pwd) docker compose --profile dev build --build-arg SERVER_URL=$(SERVER_URL) web-dev
+	@HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile dev build --build-arg SERVER_URL=$(SERVER_URL) web-dev
 
 web-build:
 	@echo Building with SERVER_URL=$(SERVER_URL)
-	@HOST_CWD=$(shell pwd) docker compose --profile prod build --build-arg SERVER_URL=$(SERVER_URL) web
+	@HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile prod build --build-arg SERVER_URL=$(SERVER_URL) web
 
 build-tools-cpu:
 	cd build && docker build -f Dockerfile.core --target dev-3.8-cpu --build-arg UID=$(uid) --build-arg GID=$(gid) -t nendo/core:3.8 .
@@ -94,7 +94,7 @@ run-dev:
     else \
         echo "Both images found. Running application..."; \
     fi
-	@HOST_CWD=$(shell pwd) docker compose --profile dev up
+	@HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile dev up
 
 run-cpu:
 	@echo Running with HOST_CWD=$(shell pwd), USE_GPU=false
@@ -105,7 +105,7 @@ run-cpu:
     else \
         echo "Both images found. Running application..."; \
     fi
-	@HOST_CWD=$(shell pwd) USE_GPU=false docker compose --profile dev up
+	@HOST_CWD=$(shell pwd) USE_GPU=false docker compose -p nendo-platform --profile dev up
 
 run:
 	@echo Running with HOST_CWD=$(shell pwd)
@@ -123,12 +123,12 @@ run:
 		echo "Running with SSL"; \
 		PROFILE=prod; \
 	fi; \
-	HOST_CWD=$(shell pwd) docker compose --profile $$PROFILE up -d
+	HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile $$PROFILE up -d
 
 stop:
-	@HOST_CWD=$(shell pwd) docker compose --profile dev down; \
-	HOST_CWD=$(shell pwd) docker compose --profile prod-http down; \
-	HOST_CWD=$(shell pwd) docker compose --profile prod down
+	@HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile dev down; \
+	HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile prod-http down; \
+	HOST_CWD=$(shell pwd) docker compose -p nendo-platform --profile prod down
 
 update:
 	git pull
