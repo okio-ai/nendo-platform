@@ -18,7 +18,7 @@ RUN mkdir /home/nendo/nendo_library && \
 USER nendo
 WORKDIR /home/nendo
 
-RUN pip install redis rq matplotlib && \
+RUN pip install redis rq matplotlib wrapt-timeout-decorator && \
     pip install tensorflow==2.11 && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
@@ -69,12 +69,12 @@ USER nendo
 ENV PATH="/home/nendo/.local/bin:$PATH"
 ENV LIBRARY_PATH="/home/nendo/nendo_library"
 
-RUN pip install redis rq
-RUN pip install protobuf==3.20.*
-RUN pip install tensorflow[and-cuda]==2.11
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
-# for lambda A10 machines
-#RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu122\
+RUN pip install redis rq wrapt-timeout-decorator && \
+    pip install protobuf==3.20.* && \
+    pip install tensorflow[and-cuda]==2.11 && \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+    # for lambda A10 machines
+    # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu122\
 
 FROM base-3.8-gpu as prod-3.8-gpu
 
