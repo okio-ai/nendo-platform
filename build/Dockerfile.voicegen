@@ -1,0 +1,21 @@
+# ------ voicegen tool ----------
+FROM nendo/core:3.8 as base
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y espeak-ng && \
+    rm -rf /var/lib/apt/lists/*
+
+USER nendo
+
+RUN pip install git+https://github.com/resemble-ai/monotonic_align.git
+
+FROM base as prod
+
+RUN pip install nendo-plugin-voicegen-styletts2
+
+FROM base as dev
+
+COPY dependencies/nendo_plugin_voicegen_styletts2 /home/nendo/nendo_plugin_voicegen_styletts2
+RUN pip install /home/nendo/nendo_plugin_voicegen_styletts2

@@ -1,0 +1,9 @@
+# ------ webimport tool ----------
+FROM nendo/core:3.8 as prod
+
+RUN pip install nendo-plugin-import-core
+
+FROM nendo/core:3.8 as dev
+
+COPY dependencies/nendo_plugin_import_core /home/nendo/nendo_plugin_import_core
+RUN pip install /home/nendo/nendo_plugin_import_core

@@ -1,0 +1,88 @@
+# Base stage for shared environment setup
+FROM python:3.8-slim-buster as base-3.8-cpu
+
+ARG UID=1000
+ARG GID=1000
+
+RUN apt-get update \
+    && apt-get -y install gcc libsndfile1-dev libpq-dev gnupg2 libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg git libmpg123-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip
+
+# Create and switch to a non-root user
+RUN groupadd -o -g $GID nendo && \
+    useradd nendo --create-home -u $UID -g $GID -m -s /bin/bash
+RUN mkdir /home/nendo/nendo_library && \
+    chown -R nendo:nendo /home/nendo/
+USER nendo
+WORKDIR /home/nendo
+
+RUN pip install redis rq matplotlib && \
+    pip install tensorflow==2.11 && \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+FROM base-3.8-cpu as dev-3.8-prod
+
+RUN pip install pip install nendo>=0.2.5 nendo-plugin-library-postgres>=0.1.5
+
+FROM base-3.8-cpu as dev-3.8-cpu
+
+COPY dependencies/nendo /home/nendo/nendo
+COPY dependencies/nendo_plugin_library_postgres /home/nendo/nendo_plugin_library_postgres
+RUN pip install /home/nendo/nendo
+RUN pip install /home/nendo/nendo_plugin_library_postgres
+
+# GPU stage
+FROM nvcr.io/nvidia/pytorch:22.08-py3 as base-3.8-gpu
+
+# Set timezone
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Reuse arguments for user setup
+ARG UID=1000
+ARG GID=1000
+
+RUN apt-get update && \
+    apt-get -y install gcc libsndfile1-dev libpq-dev gnupg2 libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg git libmpg123-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip
+
+# uninstall older version of torch
+RUN pip uninstall -y torch torchvision torchaudio
+
+# Setup user and work directory
+RUN groupadd -g $GID nendo
+RUN useradd nendo --create-home -u $UID -g $GID -m -s /bin/bash 
+USER nendo
+WORKDIR /home/nendo
+
+USER root
+RUN mkdir /home/nendo/nendo_library && \
+    mkdir -p /home/nendo/.cache/huggingface && \
+    chown -R nendo:nendo /home/nendo/
+
+USER nendo
+
+ENV PATH="/home/nendo/.local/bin:$PATH"
+ENV LIBRARY_PATH="/home/nendo/nendo_library"
+
+RUN pip install redis rq
+RUN pip install protobuf==3.20.*
+RUN pip install tensorflow[and-cuda]==2.11
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+# for lambda A10 machines
+#RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu122\
+
+FROM base-3.8-gpu as prod-3.8-gpu
+
+RUN pip install pip install nendo>=0.2.5 nendo-plugin-library-postgres>=0.1.5
+
+FROM base-3.8-gpu as dev-3.8-gpu
+
+COPY dependencies/nendo /home/nendo/nendo
+COPY dependencies/nendo_plugin_library_postgres /home/nendo/nendo_plugin_library_postgres
+RUN pip install /home/nendo/nendo
+RUN pip install /home/nendo/nendo_plugin_library_postgres
