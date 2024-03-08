@@ -28,6 +28,7 @@ DEV_REPOSITORIES=(
     "okio-ai/nendo_plugin_textgen"
     "okio-ai/nendo_plugin_voicegen_styletts2"
     "okio-ai/nendo_plugin_import_core"
+    "okio-ai/nendo_plugin_musicgen"
   )
 
 # clone all main repos
