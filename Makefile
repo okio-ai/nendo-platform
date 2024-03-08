@@ -1,4 +1,4 @@
-.PHONY: init setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev server-logs web-logs server-shell web-shell run run-dev run-cpu stop update set-password invite-codes
+.PHONY: init init-dev setup setup-dev setup-cpu all flush build build-dev server-build web-build web-build-dev build-tools-gpu build-tools-gpu-dev build-tools-cpu server-logs web-logs server-shell web-shell run run-dev run-cpu stop update set-password invite-codes
 
 all: help
 
@@ -163,7 +163,8 @@ invite-codes:
 help:
 	@echo '==================='
 	@echo '-- DOCUMENTATION --'
-	@echo 'init                   - initialize the environment (clone repos)'
+	@echo 'init                   - initialize the environment'
+	@echo 'init                   - initialize the environment (development mode)'
 	@echo 'setup                  - prepare the environment'
 	@echo 'setup-dev              - prepare the development environment'
 	@echo 'setup-cpu              - prepare the development environment (CPU-only)'
@@ -178,13 +179,14 @@ help:
 	@echo 'web-build-dev          - build nendo-web in development mode'
 	@echo 'web-logs               - get the docker logs for nendo-web'
 	@echo 'web-shell              - get a shell into nendo-web'
-	@echo 'build-tools-cpu        - build nendo tools (CPU-only)'
 	@echo 'build-tools-gpu        - build nendo tools (GPU enabled)'
+	@echo 'build-tools-gpu-dev    - build nendo tools (GPU enabled, development mode)'
+	@echo 'build-tools-cpu        - build nendo tools (CPU-only, development mode)'
 	@echo 'run                    - run Nendo Platform'
 	@echo 'run-dev                - run Nendo Platform in development mode with hot-reloading'
 	@echo 'run-cpu                - run Nendo Platform in development mode with hot-reloading (CPU mode)'
 	@echo 'stop                   - stop any running instances'
 	@echo 'set-password           - set a new password for the default nendo user'
-	@echo 'update    - update development dependencies'
+	@echo 'update                 - update development dependencies'
 	@echo 'invite-codes           - Create 100 invite codes in the database and print them to the console'
 	@echo '==================='
