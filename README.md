@@ -157,7 +157,7 @@ Now you can start developing your app by changing files in the `repo/nendo-serve
 
 ### Tool development
 
-Tools also come with _development mode_ altough not with hot-reloading enabled but with Nendo core and its plugins built into them from directories instead of by installing them directly from pypi. If you have use `make setup-dev`, you should see the directory `build/dependencies/` which contains Nendo core and all the plugins used in the platform. Now you can make modifications to the plugins and then call `make build-tools-gpu-dev` (GPU mode) or `make build-tools-cpu` (CPU mode) to build them into the tools and have them available in the platform upon calling `make run-dev`.
+Tools also come with _development mode_ in which Nendo core and its plugins built into them from directories instead of by installing them directly from pypi. If you have used `make setup-dev`, you should see the directory `build/dependencies/` which contains Nendo core and all the plugins used in the platform. Now you can make modifications to in those directories and then call `make build-tools-gpu-dev` (GPU mode) or `make build-tools-cpu` (CPU mode) to build them into the tools and have them available in the platform upon calling `make run-dev`.
 
 > **Note**: Since tools use pre-built docker images, you have to explicitly build the changes made to Nendo core or any of its plugins into the images. Hot-reloading is not supported here and will not be supported in the future. 
 
