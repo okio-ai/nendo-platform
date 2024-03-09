@@ -33,9 +33,14 @@ COPY dependencies/nendo_plugin_loopify /home/nendo/nendo_plugin_loopify
 COPY dependencies/nendo_plugin_embed_clap /home/nendo/nendo_plugin_embed_clap
 RUN pip install /home/nendo/nendo_plugin_classify_core
 RUN pip install /home/nendo/nendo_plugin_quantize_core
-RUN pip install /home/nendo/nendo_plugin_stemify_demucs
 RUN pip install /home/nendo/nendo_plugin_loopify
 RUN pip install /home/nendo/nendo_plugin_embed_clap
+
+USER root
+
+RUN pip install /home/nendo/nendo_plugin_stemify_demucs
+
+USER nendo
 
 # fix for soundfile bug and numba dependency problem
 RUN pip uninstall -y soundfile
