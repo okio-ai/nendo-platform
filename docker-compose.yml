@@ -8,6 +8,9 @@ x-all: &all
   DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME:-nendo-internal}
   NUM_USER_CPU_WORKERS: ${NUM_USER_CPU_WORKERS-3}
   NUM_GPU_WORKERS: ${NUM_GPU_WORKERS-1}
+  CHUNK_ACTIONS: ${CHUNK_ACTIONS-false}
+  DEFAULT_ACTION_TIMEOUT: ${DEFAULT_ACTION_TIMEOUT--1}
+  DEFAULT_TRACK_PROCESSING_TIMEOUT: ${DEFAULT_TRACK_PROCESSING_TIMEOUT-600}
   GOOGLE_STORAGE_CREDENTIALS: "${NUM_GPU_WORKERS-}"
   SECRET: "${SECRET-}"
   CLIENT_ID: "${CLIENT_ID-}"
@@ -118,7 +121,7 @@ services:
     volumes:
       - ./library:/home/nendo/nendo_library
       - /var/run/docker.sock:/var/run/docker.sock
-      - hf-models-cache:/home/nendo/.cache/
+      - models-cache:/home/nendo/.cache
     depends_on:
       - postgres
       - redis
@@ -159,7 +162,7 @@ services:
       - ./repo/nendo-server/nendo_server:/home/nendo/nendo-server/nendo_server
       - ./library:/home/nendo/nendo_library
       - /var/run/docker.sock:/var/run/docker.sock
-      - hf-models-cache:/home/nendo/.cache/
+      - models-cache:/home/nendo/.cache
     depends_on:
       - postgres
       - redis
@@ -205,5 +208,5 @@ networks:
 
 volumes:
   postgres-data:
-  hf-models-cache:
+  models-cache:
   redis-data:
