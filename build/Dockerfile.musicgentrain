@@ -1,0 +1,33 @@
+# ------ musicgen training bundle ----------
+FROM nendo/core:3.8 as base
+
+USER root
+
+RUN apt-get update \
+    && apt-get -y install rubberband-cli \
+    libasound-dev portaudio19-dev \
+    libportaudio2 libportaudiocpp0 \
+    && rm -rf /var/lib/apt/lists/*
+
+USER nendo
+
+RUN git clone https://github.com/facebookresearch/audiocraft.git
+RUN pip install -e ./audiocraft
+# make sure we have the correct cuda version
+RUN pip install --force-reinstall torch==2.1 torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu118
+
+# audiocraft needs this env variable for starting trainings
+ENV USER="nendo"
+
+FROM base as prod
+
+RUN pip install nendo-plugin-musicgen nendo-plugin-stemify-demucs nendo-plugin-classify-core 
+
+FROM base as dev
+
+COPY dependencies/nendo_plugin_musicgen /home/nendo/nendo_plugin_musicgen
+COPY dependencies/nendo_plugin_classify_core /home/nendo/nendo_plugin_classify_core
+COPY dependencies/nendo_plugin_stemify_demucs /home/nendo/nendo_plugin_stemify_demucs
+RUN pip install /home/nendo/nendo_plugin_musicgen
+RUN pip install /home/nendo/nendo_plugin_classify_core
+RUN pip install --ignore-installed /home/nendo/nendo_plugin_stemify_demucs
