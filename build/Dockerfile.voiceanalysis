@@ -7,8 +7,11 @@ RUN pip install flash-attn --no-build-isolation
 # mistral requirements
 RUN pip install transformers==4.37.1 accelerate tiktoken scipy transformers_stream_generator==0.0.4 peft deepspeed
 # install auto-gptq for quantized mistral
-#RUN pip install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu122
 RUN pip install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu117
+# default to larger mistal model
+ENV TEXTGEN_MODEL="TheBloke/OpenHermes-2.5-Mistral-7B-GPTQ"
+ENV TEXTGEN_MODEL_REVISION="gptq-8bit-32g-actorder_True"
+ENV ATTN_IMPLEMENTATION="flash_attention_2"
 
 FROM nendo/core:3.8 as dev-cpu
 
