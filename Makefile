@@ -154,7 +154,7 @@ update-tools-dev:
 
 set-password:
 	$(if $(NEW_PASSWORD),,@echo "NEW_PASSWORD is not set. Use 'make set-password NEW_PASSWORD=mynewpassword' to set it." && exit 1)
-	@docker cp ./scripts/changepw.py nendo-server:/home/nendo && docker exec nendo-server python /home/nendo/changepw.py $(NEW_PASSWORD) > /dev/null 2>&1
+	@docker cp ./scripts/changepw.py nendo-server:/home/nendo && docker exec nendo-server pip3 install -y passlib && docker exec nendo-server python /home/nendo/changepw.py $(NEW_PASSWORD) > /dev/null 2>&1
 	@docker exec nendo-server rm /home/nendo/changepw.py
 
 invite-codes:
