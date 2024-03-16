@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import subprocess
 
 def backup(library_path, gcs_storage_path):
     # Dump PostgreSQL database
-    dump_command = f"docker exec -it nendo-postgres pg_dump -U nendo -d nendo > {library_path}/nendo.sql"
+    target_path = os.path.join(library_path, "nendo.sql")
+    dump_command = f"docker exec -it nendo-postgres pg_dump -U nendo -d nendo > {target_path}"
     try:
         print(f"Executing: {dump_command}")
         subprocess.run(dump_command, shell=True, check=True)
@@ -22,7 +24,8 @@ def backup(library_path, gcs_storage_path):
 
 def restore(library_path, gcs_storage_path):
     # Copy the SQL file into the Docker container
-    copy_command = f"docker cp {library_path}/nendo.sql nendo-postgres:/root/nendo.sql"
+    target_path = os.path.join(library_path, "nendo.sql")
+    copy_command = f"docker cp {target_path} nendo-postgres:/root/nendo.sql"
     try:
         print(f"Executing: {copy_command}")
         subprocess.run(copy_command, shell=True, check=True)
