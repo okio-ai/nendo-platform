@@ -61,6 +61,7 @@ build-tools-gpu:
 	cd build && docker build -f Dockerfile.quantize --target prod -t nendo/quantize .
 	cd build && docker build -f Dockerfile.voicegen --target prod -t nendo/voicegen .
 	cd build && docker build -f Dockerfile.musicgen --target prod -t nendo/musicgen .
+	cd build && docker build -f Dockerfile.musicgentrain --target prod -t nendo/musicgentrain .
 	cd build && docker build -f Dockerfile.webimport --target prod -t nendo/webimport .
 
 build-tools-gpu-dev:
@@ -71,6 +72,7 @@ build-tools-gpu-dev:
 	cd build && docker build -f Dockerfile.quantize --target dev -t nendo/quantize .
 	cd build && docker build -f Dockerfile.voicegen --target dev -t nendo/voicegen .
 	cd build && docker build -f Dockerfile.musicgen --target dev -t nendo/musicgen .
+	cd build && docker build -f Dockerfile.musicgentrain --target dev -t nendo/musicgentrain .
 	cd build && docker build -f Dockerfile.webimport --target dev -t nendo/webimport .
 
 server-logs:
@@ -152,7 +154,7 @@ update-tools-dev:
 
 set-password:
 	$(if $(NEW_PASSWORD),,@echo "NEW_PASSWORD is not set. Use 'make set-password NEW_PASSWORD=mynewpassword' to set it." && exit 1)
-	@docker cp ./scripts/changepw.py nendo-server:/home/nendo && docker exec nendo-server python /home/nendo/changepw.py $(NEW_PASSWORD) > /dev/null 2>&1
+	@docker cp ./scripts/changepw.py nendo-server:/home/nendo && docker exec nendo-server pip3 install passlib && docker exec nendo-server python /home/nendo/changepw.py $(NEW_PASSWORD) > /dev/null 2>&1
 	@docker exec nendo-server rm /home/nendo/changepw.py
 
 invite-codes:
